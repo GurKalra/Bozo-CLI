@@ -1,0 +1,11 @@
+# Ignore the compiled executable
+bozo
+
+# Ignore the VS Code settings folder
+.vscode/
+
+# Ignore KDE desktop metadata
+.directory
+
+# Ignore intermediate object files
+*.o
