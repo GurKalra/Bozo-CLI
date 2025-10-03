@@ -9,3 +9,6 @@ bozo
 
 # Ignore intermediate object files
 *.o
+
+# Ignore Kate editor swap files
+*.kate-swp
