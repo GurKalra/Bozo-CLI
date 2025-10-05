@@ -2,9 +2,11 @@
 
 //main loop
 int main() {
-    //for basement ending
+    //bools used
     bool hasBeenToBasement = false;
     bool playerHasKey = false;
+    bool playerHasScrewdriver = false;
+    bool safeOpened = false;
 
     //rooms
     StartRoom start;
@@ -12,11 +14,13 @@ int main() {
     Bedroom bedroom;
     BasementRoom basement;
     Bathroom bathroom;
+    Study studyroom;
 
     //exits linking
     start.exits[1] = &kitchen;
     start.exits[2] = &bedroom;
     start.exits[4] = &bathroom;
+    start.exits[5] = &studyroom;
 
     kitchen.exits[3] = &bedroom;
     kitchen.exits[5] = &start;
@@ -30,23 +34,21 @@ int main() {
         Room* nextRoom;
 
         if(currentRoom == &start && !hasBeenToBasement){
-            Room* tempRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement);
+            Room* tempRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement, playerHasScrewdriver, safeOpened);
             if(tempRoom == nullptr){
                 std::cout << "\n'Not so fast,' a voice whispers as the floor gives way beneath you!\n";
-                std::cout << "Press Enter to continue...";
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cin.get();
-
+                pressEnterToContinue();
                 nextRoom = &basement;
-                hasBeenToBasement = true;
             }else{
                 nextRoom = tempRoom;
             }
         }else{
-            nextRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement);
+            nextRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement, playerHasScrewdriver, safeOpened);
         }
 
+       if (nextRoom != currentRoom){
         lastRoom = currentRoom;
+       }
         currentRoom = nextRoom;
     }
 

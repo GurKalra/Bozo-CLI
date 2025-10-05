@@ -1,11 +1,18 @@
 #include "room.h"
 
+//Helper functions implementation
 void clearScreen() {
 #ifdef _WIN32
     system("cls");
 #else
     system("clear");
 #endif
+}
+
+void pressEnterToContinue(){
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.get();
 }
 
 //Bedroom Implementations
@@ -17,69 +24,130 @@ bool Bedroom::playerHasCried() const{
     return hasCried;
 }
 
-Room* Bedroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement){
+Room* Bedroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               BEDROOM              ==\n";
     std::cout << "========================================\n\n";
 
+    //Reset bools for after basement
+    if (hasBeenToBasement && !resetAfterBasement){
+        bedMade = false;
+        hasCried = false;
+        resetAfterBasement = true;
+    }
+
     int choice = 0;
-    
+
+    //Before Basement
     if(!hasBeenToBasement){
+        if(bedMade || hasCried){
+            std::cout << "You've already dealt with the bedroom. No need to go back.\n";
+            pressEnterToContinue();
+            return lastRoom;
+        }
+
         std::cout << "You have come to cry but the bed is not made....What to do??\n\n";
         std::cout << "  1. Clean the bed and then cry\n";
         std::cout << "  2. Let me just cry please\n";
         std::cout << "  3. My bad i will leave\n\n";
         std::cout << "Choose: ";
+        std::cin >> choice;
+
+        if (std::cin.fail()) {
+            std::cout << "\nStop pressing random keys bruh\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            pressEnterToContinue();
+            return this;
+        }
+
+        switch (choice) {
+        case 1:
+            bedMade = true;
+            std::cout << "\nWow the bed is now made but now you feel like you dont want to cry.\nThat's nice and now you feel like leaving......" << std::endl;
+            pressEnterToContinue();
+            return lastRoom;
+        case 2:
+            hasCried = true;
+            std::cout << "\nYou cried. The unmade bed is surprisingly comforting." << std::endl;
+            pressEnterToContinue();
+            return lastRoom;
+        case 3:
+            std::cout << "\nYou leave the messy room." << std::endl;
+            pressEnterToContinue();
+            return lastRoom;
+        default:
+            std::cout << "\nReally even after all these choices. Wow" << std::endl;
+            pressEnterToContinue();
+            return this;
+        }
+    //After Basement
     }else{
+        if(bedMade || hasCried){
+            std::cout << "'You've already dealt with this room,' the Voice says. 'Find a new problem.'\n";
+            pressEnterToContinue();
+            return lastRoom;
+        }
         std::cout << "The Voice in your head re-frames the options for you.\n\n";
         std::cout << "  1. Fight the apathy and make the bed.\n";
         std::cout << "  2. Give in to the exhaustion.\n";
-        std::cout << "  3. Flee from the responsibility.\n\n";
+        std::cout << "  3. Check the wobbly leg on the nightstand.\n";
+        std::cout << "  4. Flee from the responsibility.\n\n";
         std::cout << "What will it be?: ";
-    }
-    std::cin >> choice;
 
-    if (std::cin.fail()) {
-        std::cout << "\nStop pressing random keys bruh\n";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Press Enter to continue...";
-        std::cin.get();
-        return this;
-    }
+        std::cin >> choice;
 
-    switch (choice) {
-    case 1:
-        bedMade = true;
-        std::cout << (!hasBeenToBasement ? "\nWow the bed is now made but now you feel like you dont want to cry.\nThat's nice and now you feel like leaving......" : "\nWith a sigh, you make the bed. A small victory...") << std::endl;
-        break;
-    case 2:
-        hasCried = true;
-        std::cout << (!hasBeenToBasement ? "\nYou cried. The unmade bed is surprisingly comforting." : "\nYou collapse onto the sheets. The Voice whispers, 'Easier, isn't it?'") << std::endl;
-        break;
-    case 3:
-        std::cout << (!hasBeenToBasement ? "\nYou leave the messy room." : "\nYou turn and leave. The unmade bed feels like a silent accusation.") << std::endl;
-        break;
-    default:
-        std::cout << "\nReally even after all these choices. Wow" << std::endl;
-        break;
-    }
+        if (std::cin.fail()) {
+            std::cout << "\nStop pressing random keys bruh\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Press Enter to continue...";
+            std::cin.get();
+            return this;
+        }
 
-    std::cout << "Press Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::cin.get();
-    return lastRoom;
+        switch (choice) {
+        case 1:
+            bedMade = true;
+            std::cout << "\nWith a sigh, you make the bed. A small victory..." << std::endl;
+            pressEnterToContinue();
+            return this;
+        case 2:
+            hasCried = true;
+            std::cout << "\nYou collapse onto the sheets. The Voice whispers, 'Easier, isn't it?'" << std::endl;
+            pressEnterToContinue();
+            return this;
+        case 3:
+            if (!playerHasScrewdriver) {
+                std::cout << "\nYou tighten a loose screw by hand. As you do, another one falls out... along with a small screwdriver. You pocket it." << std::endl;
+                playerHasScrewdriver = true;
+            } else {
+                std::cout << "\nYou've already fixed the nightstand. It's perfectly stable now (you assume)." << std::endl;
+            }
+            pressEnterToContinue();
+            return this;
+        case 4:
+            std::cout << "\nYou turn and leave. The unmade bed feels like a silent accusation." << std::endl;
+            pressEnterToContinue();
+            return lastRoom;
+        default:
+            std::cout << "\n'Indecisive as always,' the Voice mutters." << std::endl;
+            pressEnterToContinue();
+            return this;
+        }
+    }
 }
 
 //Start room implementation
-Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement){
+Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==             STARTING POINT         ==\n";
     std::cout << "========================================\n\n";
 
     int choice = 0;
+    //Before Basement
     if(!hasBeenToBasement){
         std::cout << "Choose your choice:\n";
         std::cout << "  1. Eat?\n";
@@ -92,93 +160,75 @@ Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBase
             std::cout << "\nBro choose something valid." << std::endl;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Press Enter to continue...";
-            std::cin.get();
+            pressEnterToContinue();
             return this;
         }
 
-        if (choice == 2) {
-            Bedroom* bedroom = dynamic_cast<Bedroom*>(exits[2]);
-            if (bedroom) {
-                if (bedroom->isBedMade()) {
-                    std::cout << "\nYou made the bed earlier. You feel too accomplished to go back and cry now." << std::endl;
-                    std::cout << "Press Enter to continue...";
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    std::cin.get();
-                    return this;
-                }
-                if (bedroom->playerHasCried()) {
-                    std::cout << "\nYou've already had your cry. The room feels emotionally spent." << std::endl;
-                    std::cout << "Press Enter to continue...";
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    std::cin.get();
-                    return this;
-                }
-            }
+        switch (choice) {
+            case 1:
+                return exits[1];
+            case 2:
+                return exits[2];
+            case 3:
+                return nullptr;
+            default:
+                std::cout << "\nInvalid choice man." << std::endl;
+                pressEnterToContinue();
+                return this;
         }
 
-        if (exits.count(choice)) {
-            return exits[choice];
-        }
-
-        if(choice==3){
-            return nullptr;
-        }
-
-    }else{
+    } else{
         std::cout << "The Voice in your head presents the usual, tedious options:\n";
         std::cout << "  1. Fill the void? (Kitchen)\n";
         std::cout << "  2. Wallow in it? (Bedroom)\n";
         std::cout << "  3. Try to leave again?\n";
-        std::cout << "  4. Face yourself. (Bathroom)\n\n";
+        std::cout << "  4. Face yourself. (Bathroom)\n";
+        std::cout << "  5. Retreat into old memories. (Study)\n\n";
         std::cout << "What will it be?: ";
         std::cin >> choice;
 
         if (std::cin.fail()) {
-            std::cout << "\nBro choose something valid." << std::endl;
+            std::cout << "\n'A pointless choice for a pointless existence,' the Voice mocks." << std::endl;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Press Enter to continue...";
-            std::cin.get();
+            pressEnterToContinue();
             return this;
         }
-        if (choice == 2) {
-            Bedroom* bedroom = dynamic_cast<Bedroom*>(exits[2]);
-            if (bedroom) {
-                if (bedroom->isBedMade() || bedroom->playerHasCried()) {
-                    std::cout << "\n'You've already dealt with that,' the Voice says. 'Find a new problem.'\n";
-                    std::cout << "Press Enter to continue...";
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    std::cin.get();
-                    return this;
-                }
-            }
-        }
-        if (choice == 3) {
+
+        switch (choice) {
+            case 1:
+                return exits[1];
+            case 2:
+                return exits[2];
             //----------ENDING 5----------
-            std::cout << "\n'Fine. Leave,' the Voice sighs. 'See if I care.'\n";
-            std::cout << "Press Enter to close the game...";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cin.get();
-            return nullptr;
+            case 3:
+                std::cout << "\n'Fine. Leave,' the Voice sighs. 'See if I care.'\n";
+                std::cout << "Press Enter to close the game...";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.get();
+                return nullptr;
+            case 4:
+                return exits[4];
+            case 5:
+                return exits[5];
+            default:
+                std::cout << "\n'A pointless choice for a pointless existence,' the Voice mocks." << std::endl;
+                pressEnterToContinue();
+                return this;
         }
-        if (exits.count(choice)) { return exits[choice]; }
     }
-    std::cout << "\nInvalid choice man." << std::endl;
-    std::cout << "Press Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::cin.get();
-    return this;
 }
 
 //Kitchen Room implementation
-Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement){
+Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               KITCHEN              ==\n";
     std::cout << "========================================\n\n";
 
     int choice = 0;
+
+    //Before Basement
     if(!hasBeenToBasement){
         std::cout << "Came to the kitchen....What to do in kitchen?\n\n";
         std::cout << "  1. Open fridge?\n";
@@ -187,6 +237,61 @@ Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBa
         std::cout << "  4. Search the cookie jar\n";
         std::cout << "  5. Nothing to do here LET ME LEAVE\n\n";
         std::cout << "Choose Right Now: ";
+
+        std::cin >> choice;
+
+        if (std::cin.fail()) {
+            std::cout << "\nStop pressing random keys bruh\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            pressEnterToContinue();
+            return this;
+        }
+
+        switch (choice){
+            case 1:
+                if (!fridgeEaten) {
+                std::cout << "\nYou opened the fridge and ate the apple" << std::endl;
+                fridgeEaten = true;
+                }else{
+                    std::cout << "\nThe fridge is now empty. Maybe next time bring your own groceries." << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 2:
+                if (!dustbinEaten) {
+                std::cout << "\nYou ate leftovers from the dustbin. Gross but satisfying." << std::endl;
+                dustbinEaten = true;
+                }else{
+                    std::cout << "\nLiterally nothing is left have some shame" << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 3:
+                if (!fridgeEaten){
+                    std::cout << "\nYou try to go cry... but the fridge glares at you" << std::endl;
+                }else{
+                    std::cout << "\nAfter eating, the thought of your messy room fills you with a strange sense of responsibility. You can't face it right now." << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 4:
+                if (!playerHasKey) {
+                    std::cout << "\nYou search the dusty old cookie jar. Beneath a few old crumbs, you find a small, iron key!...Also you ate the crumbs" << std::endl;
+                    playerHasKey = true;
+                } else {
+                    std::cout << "\nYou've already searched the cookie jar." << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 5:
+                std::cout << "\nOk man stop shouting... Going back" << std::endl;
+                return exits[5];
+            default:
+                std::cout << "\nStop pressing random keys bruh\n";
+                pressEnterToContinue();
+                return this;
+        }
     }else{
         std::cout << "The kitchen feels judgmental. The appliances watch you silently.\n\n";
         std::cout << "  1. Eat the apple from the fridge. Again.\n";
@@ -195,73 +300,62 @@ Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBa
         std::cout << "  4. Stare into the empty cookie jar.\n";
         std::cout << "  5. Flee the judgment.\n\n";
         std::cout << "Choose: ";
-    }
-    std::cin >> choice;
 
-    if (std::cin.fail()) {
-        std::cout << "\nStop pressing random keys bruh\n";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Press Enter to continue...";
-        std::cin.get();
-        return this;
-    }
+        std::cin >> choice;
 
-    switch (choice) {
-    case 1:
-        if (!fridgeEaten) {
-            std::cout << "\nYou opened the fridge and ate the apple" << std::endl;
-            fridgeEaten = true;
+        if (std::cin.fail()) {
+            std::cout << "\nStop pressing random keys bruh\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            pressEnterToContinue();
+            return this;
         }
-        else {
-            std::cout << (!hasBeenToBasement ? "\nThe fridge is now empty. Maybe next time bring your own groceries." : "\n'Still not satisfied?' the fridge seems to hum.") << std::endl;
-        }
-        break;
-    case 2:
-        if (!dustbinEaten) {
-            std::cout << "\nYou ate leftovers from the dustbin. Gross but satisfying." << std::endl;
-            dustbinEaten = true;
-        }
-        else {
-            std::cout << (!hasBeenToBasement ? "\nLiterally nothing is left have some shame" : "\n'Pathetic,' whispers the bin lid.") << std::endl;
-        }
-        break;
-    case 3:
-        if(!hasBeenToBasement){
-            if(!fridgeEaten){
-                std::cout << "\nYou try to go cry… but the fridge glares at you";
-            }else{
-                 std::cout << "\nAfter eating, the thought of your messy room fills you with a strange sense of responsibility. You can't face it right now." << std::endl;
-            }
-        }else{
-            std::cout << "\nThe fridge hums a low, judgmental tone. 'You are never satisfied,' it seems to say. 'Always wanting more.'\n";
-        }
-        break;
-    case 4:
-        if(!keyTaken){
-            std::cout << (!hasBeenToBasement ? "\nYou search the dusty old cookie jar. Beneath a few old crumbs, you find a small, iron key!...Also you ate the crumbs" : "\nStaring into the empty jar, you feel a moment of clarity. This is what you were looking for.") << std::endl;
-            playerHasKey = true;
-            keyTaken = true;
-        } else{
-            std::cout<< "\nYou've already searched the cookie jar." <<std::endl;
-        }
-        break;
-    case 5:
-        std::cout << "\nOk man stop shouting... Going back" << std::endl;
-        return exits[5];
-    default:
-        std::cout << "\nStop pressing random keys bruh\n";
-        break;
-    }
 
-    std::cout << "Press Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::cin.get();
-    return this;
+        switch (choice){
+            case 1:
+                if (!fridgeEaten) {
+                std::cout << "\nYou opened the fridge and ate the apple" << std::endl;
+                fridgeEaten = true;
+                }else{
+                    std::cout << "\n'Still not satisfied?' the fridge seems to hum." << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 2:
+                if (!dustbinEaten) {
+                std::cout << "\nYou ate leftovers from the dustbin. Gross but satisfying." << std::endl;
+                dustbinEaten = true;
+                }else{
+                    std::cout << "\n'Pathetic,' whispers the bin lid." << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 3:
+                std::cout << "\nThe fridge hums a low, judgmental tone. 'You are never satisfied,' it seems to say. 'Always wanting more.'" << std::endl;
+                pressEnterToContinue();
+                return this;
+            case 4:
+                if (!playerHasKey) {
+                    std::cout << "\nStaring into the empty jar, you feel a moment of clarity. This is what you were looking for." << std::endl;
+                    playerHasKey = true;
+                } else {
+                    std::cout << "\nYou've already stared into the abyss of the cookie jar." << std::endl;
+                }
+                pressEnterToContinue();
+                return this;
+            case 5:
+                std::cout << "\nYou flee the silent judgement." << std::endl;
+                return exits[5];
+            default:
+                std::cout << "\n'Pointless,' the room seems to sigh." << std::endl;
+                pressEnterToContinue();
+                return this;
+        }
+    }
 }
 
 //Basement room implementation
-Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement){
+Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               BASEMENT             ==\n";
@@ -280,10 +374,7 @@ Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToB
         if(std::cin.good() && choice == 1){
             std::cout << "\nThe key actually works well done man!! You are where you started (don't try leaving again just in case)..." << std::endl;
             hasBeenToBasement = true;
-            std::cout << "Press Enter to continue...";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cin.get();
-
+            pressEnterToContinue();
             return exits[1];
         }
     }
@@ -299,7 +390,7 @@ Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToB
 }
 
 //Bathroom implementation
-Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement){
+Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               BATHROOM             ==\n";
@@ -308,9 +399,7 @@ Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasem
 
     if(!playerHasKey){
         std::cout << "\nYou look in the mirror, but your refection is distorted and unclear. 'What are you even doing here?' it seems to mumble.\n";
-        std::cout<<"Press Enter to go back...";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin.get();
+        pressEnterToContinue();
         return lastRoom;
     }
 
@@ -324,6 +413,14 @@ Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasem
 
     int choice = 0;
     std::cin >> choice;
+
+    if (std::cin.fail()) {
+        std::cout << "\n'Indecisive,' the Voice mutters." << std::endl;
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        pressEnterToContinue();
+        return this;
+    }
 
     switch (choice){
         //----------ENDING 2----------
@@ -353,8 +450,62 @@ Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasem
             std::cin.get();
 
             return nullptr;
-
+        default:
+            std::cout << "\nYour silence is an answer in itself. The reflection just stares." << std::endl;
+            pressEnterToContinue();
+            return this;
     }
-    return this;
 }
 
+
+//Study room implementation
+Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+    clearScreen();
+    std::cout << "========================================\n";
+    std::cout << "==                 STUDY              ==\n";
+    std::cout << "========================================\n\n";
+
+    std::cout << "You enter a dusty study. Bookshelves line the walls, and a large, imposing painting hangs crookedly.\n\n";
+    std::cout << "  1. Examine the bookshelves.\n";
+    std::cout << "  2. Examine the crooked painting.\n";
+    std::cout << "  3. Leave.\n\n";
+    std::cout << "Choose: ";
+
+    int choice = 0;
+    std::cin >> choice;
+
+    if (std::cin.fail()) {
+        std::cout << "\nStop pressing random keys bruh\n";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        pressEnterToContinue();
+        return this;
+    }
+
+    switch(choice){
+        case 1:
+            std::cout << "\nThe books are old and uninteresting. 'Just like you, ' The Voice mutters." << std::endl;
+            pressEnterToContinue();
+            return this;
+        case 2:
+            if(!safeOpened){
+                std::cout << "\nYou straighten the painting. As you do, you feel a hollow space behind it. You take it off the wall, revealing a ventilation grate." << std::endl;
+                if(playerHasScrewdriver){
+                    std::cout << "You use the screwdriver to easily pop the grate off. Inside is a small, heavy metal box. You've found something important." << std::endl;
+                    safeOpened = true; //Puzzle Complete
+                } else {
+                    std::cout << "The grate is screwed tight. You can't open it with your bare hands. 'Another failure,' the Voice sighs." << std::endl;
+                }
+            } else {
+                std::cout << "\nYou look at the empty space where the grate used to be. You've already found what was hidden here." << std::endl;
+            }
+            pressEnterToContinue();
+            return this;
+        case 3:
+            return lastRoom;
+        default:
+            std::cout << "\n'A pointless choice,' the Voice says. You do nothing." << std::endl;
+            pressEnterToContinue();
+            return this;
+    }
+}
