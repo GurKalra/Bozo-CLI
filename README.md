@@ -5,7 +5,7 @@ A short, narrative-driven CLI adventure game about dealing with your inner criti
 This project consists of three main source files: `game.cpp`, `room.cpp`, and `room.h`.
 
 ### Compilation
-To compile the game on a Linux system (like KDE Neon), use the g++ compiler:
+To compile the game on any system, use the g++ compiler:
 ```bash
 g++ game.cpp room.cpp -o bozo
 ```
