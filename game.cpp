@@ -7,6 +7,8 @@ int main() {
     bool playerHasKey = false;
     bool playerHasScrewdriver = false;
     bool safeOpened = false;
+    bool playerKnowsCode = false;
+    bool boxIsOpened = false;
 
     //rooms
     StartRoom start;
@@ -34,7 +36,7 @@ int main() {
         Room* nextRoom;
 
         if(currentRoom == &start && !hasBeenToBasement){
-            Room* tempRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement, playerHasScrewdriver, safeOpened);
+            Room* tempRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement, playerHasScrewdriver, safeOpened, playerKnowsCode, boxIsOpened);
             if(tempRoom == nullptr){
                 std::cout << "\n'Not so fast,' a voice whispers as the floor gives way beneath you!\n";
                 pressEnterToContinue();
@@ -43,7 +45,7 @@ int main() {
                 nextRoom = tempRoom;
             }
         }else{
-            nextRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement, playerHasScrewdriver, safeOpened);
+            nextRoom = currentRoom->OnEnter(lastRoom, playerHasKey, hasBeenToBasement, playerHasScrewdriver, safeOpened, playerKnowsCode, boxIsOpened);
         }
 
        if (nextRoom != currentRoom){

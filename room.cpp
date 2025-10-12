@@ -24,7 +24,7 @@ bool Bedroom::playerHasCried() const{
     return hasCried;
 }
 
-Room* Bedroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+Room* Bedroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               BEDROOM              ==\n";
@@ -84,11 +84,6 @@ Room* Bedroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBaseme
         }
     //After Basement
     }else{
-        if(bedMade || hasCried){
-            std::cout << "'You've already dealt with this room,' the Voice says. 'Find a new problem.'\n";
-            pressEnterToContinue();
-            return lastRoom;
-        }
         std::cout << "The Voice in your head re-frames the options for you.\n\n";
         std::cout << "  1. Fight the apathy and make the bed.\n";
         std::cout << "  2. Give in to the exhaustion.\n";
@@ -140,7 +135,7 @@ Room* Bedroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBaseme
 }
 
 //Start room implementation
-Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==             STARTING POINT         ==\n";
@@ -203,6 +198,7 @@ Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBase
             //----------ENDING 5----------
             case 3:
                 std::cout << "\n'Fine. Leave,' the Voice sighs. 'See if I care.'\n";
+                std::cout << "    --- FIN --- \n\n";
                 std::cout << "Press Enter to close the game...";
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cin.get();
@@ -220,7 +216,7 @@ Room* StartRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBase
 }
 
 //Kitchen Room implementation
-Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               KITCHEN              ==\n";
@@ -355,7 +351,7 @@ Room* KitchenRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBa
 }
 
 //Basement room implementation
-Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened,bool &playerKnowsCode, bool &boxIsOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               BASEMENT             ==\n";
@@ -390,7 +386,7 @@ Room* BasementRoom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToB
 }
 
 //Bathroom implementation
-Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==               BATHROOM             ==\n";
@@ -409,6 +405,9 @@ Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasem
     std::cout << "  1. 'You're right. I'm a failure.' (Agree with The Voice)\n";
     std::cout << "  2. 'No, you're wrong!' (Argue with The Voice)\n";
     std::cout << "  3. (Say nothing. Just nod.) (Acknowledge The Voice)\n\n";
+    if(boxIsOpened){
+        std::cout << "  4. 'I remember the drawing. (Show compassion)\n";
+    }
     std::cout << "Choose: ";
 
     int choice = 0;
@@ -448,8 +447,22 @@ Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasem
             std::cout << "Press Enter to close the game...";
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cin.get();
-
             return nullptr;
+        //----------ENDING 6----------
+        case 4:
+            if (boxIsOpened){
+                std::cout << "\nYou look at the snarling face in the mirror and instead of anger, you feel a deep, aching sadness.\n";
+                std::cout << "'I remember the drawing,' you think. 'I remember you were just trying to protect me then.'\n\n";
+                std::cout << "The reflection's face softens. The anger drains away, replaced by that same, echoing sadness from the memory.\n";
+                std::cout << "'I was,' it whispers. 'I'm... tired.'\n\n";
+                std::cout << "The reflection fades, not in anger, but in quiet release. You are alone, but for the first time, you don't feel lonely.\n";
+                std::cout << "    --- FIN --- \n\n";
+                std::cout << "Press Enter to close the game...";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.get();
+                return nullptr;
+            }
+
         default:
             std::cout << "\nYour silence is an answer in itself. The reflection just stares." << std::endl;
             pressEnterToContinue();
@@ -459,7 +472,7 @@ Room* Bathroom::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasem
 
 
 //Study room implementation
-Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened){
+Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened){
     clearScreen();
     std::cout << "========================================\n";
     std::cout << "==                 STUDY              ==\n";
@@ -468,6 +481,9 @@ Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement
     std::cout << "You enter a dusty study. Bookshelves line the walls, and a large, imposing painting hangs crookedly.\n\n";
     std::cout << "  1. Examine the bookshelves.\n";
     std::cout << "  2. Examine the crooked painting.\n";
+    if(safeOpened){
+        std::cout << "  4. Try to open the metal box.\n";
+    }
     std::cout << "  3. Leave.\n\n";
     std::cout << "Choose: ";
 
@@ -484,7 +500,16 @@ Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement
 
     switch(choice){
         case 1:
-            std::cout << "\nThe books are old and uninteresting. 'Just like you, ' The Voice mutters." << std::endl;
+            if(safeOpened){
+                if(!playerKnowsCode){
+                     std::cout << "\nYou search the books with a new sense of purpose. Tucked away is a single, slim diary. Most pages are blank, but one has a date circled in red: April 18th." << std::endl;
+                     playerKnowsCode = true;
+                } else {
+                    std::cout << "\nYou look at the diary again. The date, 0418, seems to burn into your memory." << std::endl;
+                }
+            } else {
+                std::cout << "\nThe books are old and uninteresting. You notice a slim diary tucked away, but the thought of opening it feels exhausting. 'Leave it,' The Voice mutters. 'It's better left forgotten.'" << std::endl;
+            }
             pressEnterToContinue();
             return this;
         case 2:
@@ -492,7 +517,7 @@ Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement
                 std::cout << "\nYou straighten the painting. As you do, you feel a hollow space behind it. You take it off the wall, revealing a ventilation grate." << std::endl;
                 if(playerHasScrewdriver){
                     std::cout << "You use the screwdriver to easily pop the grate off. Inside is a small, heavy metal box. You've found something important." << std::endl;
-                    safeOpened = true; //Puzzle Complete
+                    safeOpened = true;
                 } else {
                     std::cout << "The grate is screwed tight. You can't open it with your bare hands. 'Another failure,' the Voice sighs." << std::endl;
                 }
@@ -503,6 +528,23 @@ Room* Study::OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement
             return this;
         case 3:
             return lastRoom;
+        case 4:
+            if(safeOpened){
+                if(playerKnowsCode){
+                    if(!boxIsOpened){
+                        std::cout << "\nYou enter the date you found, 0-4-1-8. The box clicks open. Inside are faded photographs of a life before... before all this. You've unlocked the core memory." << std::endl;
+                        boxIsOpened = true;
+                    } else {
+                        std::cout << "\nThe box is already open. The faded photographs sit inside." << std::endl;
+                    }
+                } else {
+                    std::cout << "\nThe box has a four-digit lock. You don't know the combination. 'Missing something, aren't we?' the Voice taunts." << std::endl;
+                }
+            } else {
+                std::cout << "\n'A pointless choice,' the Voice says. You do nothing." << std::endl;
+            }
+            pressEnterToContinue();
+            return this;
         default:
             std::cout << "\n'A pointless choice,' the Voice says. You do nothing." << std::endl;
             pressEnterToContinue();

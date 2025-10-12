@@ -14,7 +14,7 @@ void pressEnterToContinue();
 class Room {
 public:
     std::map<int, Room*> exits;
-    virtual Room* OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened) = 0;
+    virtual Room* OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened) = 0;
     virtual ~Room() = default;
 };
 
@@ -28,13 +28,13 @@ private:
 public:
     bool isBedMade() const;
     bool playerHasCried() const;
-    Room* OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened) override;
+    Room* OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened) override;
 };
 
 //Start room class
 class StartRoom : public Room{
 public:
-    Room* OnEnter(Room* lastRoom, bool &playerHasKey,bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened) override;
+    Room* OnEnter(Room* lastRoom, bool &playerHasKey,bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened) override;
 };
 
 //Kitchen room class
@@ -43,25 +43,25 @@ private:
     bool fridgeEaten = false;
     bool dustbinEaten = false;
 public:
-    Room *OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened) override;
+    Room *OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened,bool &playerKnowsCode, bool &boxIsOpened) override;
 };
 
 //Basement room class
 class BasementRoom : public Room{
 public:
-    Room* OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened) override;
+    Room* OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement, bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened) override;
 };
 
 //Bathroom class
 class Bathroom : public Room{
 public:
-    Room *OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement,bool &playerHasScrewdriver, bool &safeOpened) override;
+    Room *OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement,bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened) override;
 };
 
 //Study room class
 class Study : public Room{
 public:
-    Room *OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement,bool &playerHasScrewdriver, bool &safeOpened) override;
+    Room *OnEnter(Room* lastRoom, bool &playerHasKey, bool &hasBeenToBasement,bool &playerHasScrewdriver, bool &safeOpened, bool &playerKnowsCode, bool &boxIsOpened) override;
 };
 
 #endif
